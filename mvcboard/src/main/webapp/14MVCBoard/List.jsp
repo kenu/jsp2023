@@ -10,7 +10,7 @@
 <title>목록</title>
 </head>
 <body>
-목록 ${ 2 * 3 }
+목록
 <hr>
 <%= request.getAttribute("count") %>
 <hr>
@@ -28,5 +28,6 @@ if (board.size() == 0) {
 <%	
 }
 %>
+${ requestScope["map"]["pagingImg"] }
 </body>
 </html>
