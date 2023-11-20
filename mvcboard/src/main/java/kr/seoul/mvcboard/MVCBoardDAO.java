@@ -14,33 +14,36 @@ public class MVCBoardDAO extends DBConnPool {
 	public int selectCount(Map<String, Object> map) {
 		int totalCount = 0;
 		String query = "select count(*) from mvcboard";
+		if (map.get("searchWord") != null) {
+			query += " where " + map.get("searchField") + 
+					" like '%" + map.get("searchWord") + "%'";
+		}
 		try {
 			stmt = con.createStatement();
 			rs = stmt.executeQuery(query);
 			rs.next();
 			totalCount = rs.getInt(1);
 		} catch (Exception e) {
-			System.out.println("카운트 중 예외 발생");
 			e.printStackTrace();
 		}
 		return totalCount;
 	}
-	
+
 	public List<MVCBoardDTO> selectListPage(Map<String, Object> map) {
 		List<MVCBoardDTO> board = new Vector<>();
-		
-		String query = "select * from ("
-				+ " select Tb.*, rownum rNum from ("
-				+ " select * from mvcboard"
-				+ " order by idx desc) )"
-				+ " where rNum between ? and ?";
+		String query = "select * from mvcboard";
+		if (map.get("searchWord") != null) {
+			query += " where " + map.get("searchField") + 
+					" like '%" + map.get("searchWord") + "%'";
+		}
+		query += " order by idx desc limit ?, ?";
 		try {
 			psmt = con.prepareStatement(query);
-			psmt.setString(1, map.get("start").toString());
-			psmt.setString(2, map.get("end").toString());
+			psmt.setInt(1, Integer.parseInt(map.get("start").toString()));
+			psmt.setInt(2, Integer.parseInt(map.get("end").toString()));
 			rs = psmt.executeQuery();
 			
-			while (rs.next()) {
+			while(rs.next()) {
 				MVCBoardDTO dto = new MVCBoardDTO();
 				
 				dto.setIdx(rs.getString(1));
@@ -53,11 +56,10 @@ public class MVCBoardDAO extends DBConnPool {
 				dto.setDowncount(rs.getInt(8));
 				dto.setPass(rs.getString(9));
 				dto.setVisitcount(rs.getInt(10));
-				
+
 				board.add(dto);
 			}
 		} catch (Exception e) {
-			System.out.println("게시물 조회 중 예외 발생");
 			e.printStackTrace();
 		}
 		return board;
